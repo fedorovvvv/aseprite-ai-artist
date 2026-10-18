@@ -235,7 +235,7 @@ export function registerPaletteTools(server: McpServer, live: AsepriteLink): voi
               colors: string[];
               usage: { index: number; hex: string; pixels: number }[];
               offPalette: { hex: string; pixels: number }[];
-            }>("palette.stats", { sprite: args.sprite });
+            }>("palette.stats", { sprite: args.sprite }, { expect: ["colors", "usage", "offPalette"] });
             return ok(
               { op: "analyze", sprite: state.sprite, colors: state.colors, analysis: analyze(state) },
               describeAnalysis(analyze(state)),
@@ -243,10 +243,11 @@ export function registerPaletteTools(server: McpServer, live: AsepriteLink): voi
           }
 
           case "extract": {
-            const data = await live.call<{ sprite: string; colors: string[] }>("palette.extract", {
-              sprite: args.sprite,
-              maxColors: args.maxColors,
-            });
+            const data = await live.call<{ sprite: string; colors: string[] }>(
+              "palette.extract",
+              { sprite: args.sprite, maxColors: args.maxColors },
+              { expect: ["colors"] },
+            );
             return ok(
               { op: "extract", ...data },
               `Extracted a ${data.colors.length}-colour palette from the art: ${data.colors.join(" ")}`,
@@ -254,10 +255,12 @@ export function registerPaletteTools(server: McpServer, live: AsepriteLink): voi
           }
 
           default: {
-            const data = await live.call<Record<string, unknown>>("palette.get", {
-              sprite: args.sprite,
-            });
-            const colors = (data.colors as string[]) ?? [];
+            const data = await live.call<Record<string, unknown>>(
+              "palette.get",
+              { sprite: args.sprite },
+              { expect: ["colors"] },
+            );
+            const colors = data.colors as string[];
             return ok(
               { op: "get", ...data },
               `${colors.length} colours: ${colors.join(" ")}`,

@@ -145,12 +145,12 @@ export class LiveClient implements AsepriteLink {
    *   normal state of a freshly started editor, into a hard error telling the
    *   user to reinstall a perfectly current extension.
    */
-  // TODO(boundary): only the call sites whose fields feed a summary or a
-  // decision declare `expect` — draw.batch, recolor.apply, export.run,
-  // session.site, sprite.info, validate.run. The rest (select, transform,
-  // reference, tileset, look, palette) still rest on `call<T>` alone. Extend as
-  // each is checked against a real reply; guessing a field name here turns a
-  // working path into a hard error.
+  // Every call site whose reply fields feed a summary or a decision declares
+  // them. select, transform, reference and lua.run pass the reply through
+  // untouched; layer and frame read optional fields and skip the summary when
+  // they are absent. Each list was checked against the handler's return in
+  // extension/ai-artist.lua; guessing a field name here turns a working path
+  // into a hard error.
   async call<T = unknown>(
     cmd: string,
     args: Record<string, unknown> = {},

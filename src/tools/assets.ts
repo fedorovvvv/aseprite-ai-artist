@@ -209,7 +209,9 @@ export function registerAssetTools(server: McpServer, live: AsepriteLink): void 
             ),
           );
         }
-        const data = await live.call<Record<string, unknown>>("tileset.apply", args);
+        const data = await live.call<Record<string, unknown>>("tileset.apply", args, {
+          expect: TILESET_EXPECT[args.op] ?? [],
+        });
         return ok(data, describeTileset(args.op, data));
       } catch (err) {
         return fail(err);
@@ -218,11 +220,18 @@ export function registerAssetTools(server: McpServer, live: AsepriteLink): void 
   );
 }
 
+/** Fields `describeTileset` reads, per op; only those ops get a summary. */
+const TILESET_EXPECT: Partial<Record<string, readonly string[]>> = {
+  pack: ["cellCount", "tileCount", "reusedFuzzy", "layer", "sourceLayer"],
+  export: ["files", "format"],
+  stamp: ["tileCount", "skipped", "columns", "rows"],
+};
+
 function describeTileset(op: string, data: Record<string, unknown>): string | undefined {
   if (op === "pack") {
-    const cells = Number(data.cellCount ?? 0);
-    const tiles = Number(data.tileCount ?? 0);
-    const fuzzy = Number(data.reusedFuzzy ?? 0);
+    const cells = Number(data.cellCount);
+    const tiles = Number(data.tileCount);
+    const fuzzy = Number(data.reusedFuzzy);
     const lines = [
       `${cells} cell(s) packed into ${tiles} tile(s) on '${String(data.layer)}'. '${String(data.sourceLayer)}' is hidden, not deleted — unhide it to compare.`,
     ];
@@ -237,10 +246,10 @@ function describeTileset(op: string, data: Record<string, unknown>): string | un
     return lines.join(" ");
   }
   if (op === "export") {
-    const files = (data.files as string[]) ?? [];
+    const files = data.files as string[];
     return `Wrote ${files.length} file(s) for ${String(data.format)}: ${files.join(", ")}`;
   }
-  if (op === "stamp" && Number(data.skipped ?? 0) > 0) {
+  if (op === "stamp" && Number(data.skipped) > 0) {
     return `Placed ${String(data.tileCount)} tile(s); skipped ${String(data.skipped)} outside the ${String(data.columns)}x${String(data.rows)} grid or naming a tile that does not exist.`;
   }
   return undefined;

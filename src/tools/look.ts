@@ -181,17 +181,21 @@ export function registerLookTools(server: McpServer, live: AsepriteLink): void {
               width: number;
               height: number;
               scale: number;
-            }>("look.onion", {
-              sprite: args.sprite,
-              frame: args.frame,
-              framesBefore: args.framesBefore,
-              framesAfter: args.framesAfter,
-              ghostOpacity: args.ghostOpacity,
-              layer: args.layer,
-              region: args.region,
-              path: out,
-              scale: args.scale,
-            });
+            }>(
+              "look.onion",
+              {
+                sprite: args.sprite,
+                frame: args.frame,
+                framesBefore: args.framesBefore,
+                framesAfter: args.framesAfter,
+                ghostOpacity: args.ghostOpacity,
+                layer: args.layer,
+                region: args.region,
+                path: out,
+                scale: args.scale,
+              },
+              { expect: ["frame", "frames", "sourceWidth", "sourceHeight", "scale"] },
+            );
             const image = await readAndClean(out);
             return okWithImage(
               {
@@ -215,12 +219,11 @@ export function registerLookTools(server: McpServer, live: AsepriteLink): void {
               width: number;
               height: number;
               scale: number;
-            }>("look.filmstrip", {
-              sprite: args.sprite,
-              layer: args.layer,
-              path: out,
-              scale: args.scale,
-            });
+            }>(
+              "look.filmstrip",
+              { sprite: args.sprite, layer: args.layer, path: out, scale: args.scale },
+              { expect: ["frames", "width", "height", "scale"] },
+            );
             const layout = filmstripLayout(meta.frames);
             const image = await readAndClean(out);
             return okWithImage(
@@ -284,15 +287,19 @@ export function registerLookTools(server: McpServer, live: AsepriteLink): void {
               width: number;
               height: number;
               scale: number;
-            }>("look.preview", {
-              sprite: args.sprite,
-              frame: args.frame,
-              layer: args.layer,
-              region: args.region,
-              path: out,
-              // Omitted scale means the extension picks one from the sprite size.
-              scale: args.scale,
-            });
+            }>(
+              "look.preview",
+              {
+                sprite: args.sprite,
+                frame: args.frame,
+                layer: args.layer,
+                region: args.region,
+                path: out,
+                // Omitted scale means the extension picks one from the sprite size.
+                scale: args.scale,
+              },
+              { expect: ["sourceWidth", "sourceHeight", "scale"] },
+            );
             const image = await readAndClean(out);
             return okWithImage(
               {
@@ -392,22 +399,26 @@ async function readRegion(
     height: number;
     colors: string[];
     grid: number[];
-  }>("pixels.read", {
-    sprite: args.sprite,
-    layer: args.layer,
-    frame: args.frame,
-    region: args.region,
-    // `look` has no `composite` field: its `layer` promises a single layer, so
-    // naming one must read that layer's cel. Defaulting to the composite here
-    // made op 'diff' with layer=… silently diff the whole image.
-    composite: args.composite ?? args.layer === undefined,
-  });
+  }>(
+    "pixels.read",
+    {
+      sprite: args.sprite,
+      layer: args.layer,
+      frame: args.frame,
+      region: args.region,
+      // `look` has no `composite` field: its `layer` promises a single layer, so
+      // naming one must read that layer's cel. Defaulting to the composite here
+      // made op 'diff' with layer=… silently diff the whole image.
+      composite: args.composite ?? args.layer === undefined,
+    },
+    { expect: ["x", "y", "width", "height", "colors", "grid"] },
+  );
   return { ...data, spriteName: data.sprite };
 }
 
 async function readPalette(live: AsepriteLink, sprite: string | undefined): Promise<string[]> {
-  const data = await live.call<{ colors?: string[] }>("palette.get", { sprite });
-  return data.colors ?? [];
+  const data = await live.call<{ colors: string[] }>("palette.get", { sprite }, { expect: ["colors"] });
+  return data.colors;
 }
 
 function offPaletteNote(glyphs: string[]): string {

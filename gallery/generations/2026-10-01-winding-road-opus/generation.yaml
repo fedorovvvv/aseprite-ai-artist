@@ -152,14 +152,6 @@ benchmark:
     - criterion: loop-validate
       pass: true
 ratings:
-  - judge: model:gpt-5.5
-    scores:
-      read: 2
-      form: 2
-      motion: 2
-      cohesion: 3
-      appeal: 2
-    note: The scene and the road read, but the distant landmarks and the moving details are muddy, and the animation feels mechanical rather than atmospheric.
   - judge: human:fedorovvvv
     scores:
       read: 0

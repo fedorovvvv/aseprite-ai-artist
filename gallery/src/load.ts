@@ -304,8 +304,8 @@ export function inspectGallery(root: string = DEFAULT_GALLERY_ROOT): LoadResult 
           ? ' · supplied reference'
           : '';
     const modelLabel = [...new Set(data.models)].sort().join(' + ') + pipeline;
-    // TODO(model judges paused): model-judge ratings stay valid in generation.yaml but are ignored
-    // until they are re-evaluated; only human ratings reach the site and the score.
+    // Only human ratings reach the site and the score; `model:` judges stay valid in the schema
+    // so a file can carry one, but a model's craft opinion is not what the benchmark measures.
     const ratings = data.ratings.filter((rating) => rating.judge.startsWith('human:'));
     generations.push({ ...data, ratings, id, files, cover, modelLabel, score, outdated, craft: craftOf(ratings), points: null, components: null, pack: null });
   }

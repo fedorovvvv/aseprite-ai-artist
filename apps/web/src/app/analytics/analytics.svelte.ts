@@ -7,7 +7,9 @@ import { inject, pageview } from '@vercel/analytics';
  *
  * FIXME(@vercel/analytics 2.0.1): its own `injectAnalytics` from '@vercel/analytics/sveltekit'
  * subscribes to `$app/stores`, which SvelteKit 3 removed, and throws `app_stores_removed` on
- * hydration. This is that adapter's body on `$app/state`; switch back once it supports Kit 3.
+ * hydration. This is that adapter's body on `$app/state`. 2.1.0 (canary.5 on the `beta` tag as
+ * of 2026-10) ships `injectAnalytics` from '@vercel/analytics/sveltekit-next' on `$app/state`;
+ * switch to it once 2.1.0 is stable.
  */
 export function trackAnalytics(): void {
 	if (!browser) return;

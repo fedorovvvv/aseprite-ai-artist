@@ -6,11 +6,21 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed
+
+- CI now builds Aseprite 1.3.17's CLI variant from source (cached) and runs
+  the headless Lua handler suite, which previously ran only on a developer's
+  machine; a handler regression now fails the pipeline.
+
 ### Fixed
 
 - `reference` no longer leaves the source image open as the active sprite when
   reading it fails, and now restores the user's active layer and frame too, not
   only the sprite.
+- `look`, `read_pixels`, `palette` and `tileset` now refuse a reply from an
+  outdated extension that lacks the fields they summarise, with an
+  `install-extension` hint, instead of reporting `undefined` or an empty
+  palette as if the call worked.
 
 ## [0.8.2] — 2026-10-12
 
